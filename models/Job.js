@@ -8,10 +8,12 @@ const jobSchema = new mongoose.Schema(
       trim: true,
     },
     company: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Company',
       required: true,
     },
-    
+
+
     location: {
       type: String,
       default: "Remote",
@@ -21,7 +23,7 @@ const jobSchema = new mongoose.Schema(
       enum: ["Full-time", "Part-time", "Internship", "Contract", "Remote"],
       default: "Full-time",
     },
-   
+
     salary: {
       type: String,
       default: "Competitive",
@@ -30,18 +32,18 @@ const jobSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-   
+
     skills: {
       type: [String],
       default: [],
     },
- 
+
     status: {
       type: String,
       enum: ["active", "closed"],
       default: "active",
     },
-     postedBy: {
+    postedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,

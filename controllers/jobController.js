@@ -1,4 +1,4 @@
-const Job     = require('../models/Job');
+const Job = require('../models/Job');
 const Company = require('../models/Company');
 
 // ─── GET /api/jobs ────────────────────────────────────────────────────────────
@@ -8,16 +8,16 @@ exports.getJobs = async (req, res) => {
     const filter = { isActive: true };
 
     if (category && category !== 'All') filter.category = category;
-    if (type)     filter.type     = type;
+    if (type) filter.type = type;
     if (location) filter.location = { $regex: location, $options: 'i' };
-    if (search)   filter.$or = [
-      { title:       { $regex: search, $options: 'i' } },
+    if (search) filter.$or = [
+      { title: { $regex: search, $options: 'i' } },
       { description: { $regex: search, $options: 'i' } },
     ];
 
-    const skip  = (Number(page) - 1) * Number(limit);
+    const skip = (Number(page) - 1) * Number(limit);
     const total = await Job.countDocuments(filter);
-    const jobs  = await Job.find(filter)
+    const jobs = await Job.find(filter)
       .populate('company', 'name industry location logo')
       .populate('postedBy', 'name email')
       .sort({ createdAt: -1 })
@@ -103,6 +103,21 @@ exports.deleteJob = async (req, res) => {
 
     await job.deleteOne();
     res.status(200).json({ success: true, message: 'Job deleted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+// ─── GET /api/jobs/my ─────────────────────────────────────────────────────────
+exports.getMyJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find({ postedBy: req.user._id })
+      .populate('company', 'name logo')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      jobs,
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

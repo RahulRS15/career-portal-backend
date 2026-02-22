@@ -1,21 +1,27 @@
 const express  = require('express');
 const router   = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+const upload   = require('../middleware/upload');
 const {
-  getJobs,
-  getJob,
-  createJob,
-  updateJob,
-  deleteJob,
-} = require('../controllers/jobController');
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  uploadProfilePhoto,
+} = require('../controllers/userController');
 
-// Public
-router.get('/',    getJobs);
-router.get('/:id', getJob);
+// Admin only: Get all users
+router.get('/',      protect, authorize('admin'), getAllUsers);
 
-// Company / Admin only
-router.post('/',    protect, authorize('company', 'admin'), createJob);
-router.put('/:id',  protect, authorize('company', 'admin'), updateJob);
-router.delete('/:id', protect, authorize('company', 'admin'), deleteJob);
+// Self or Admin: Get/Update user
+router.get('/:id',   protect, getUserById);
+router.put('/:id',   protect, updateUser);
+
+// Admin only: Delete user
+router.delete('/:id', protect, authorize('admin'), deleteUser);
+
+// Self or Admin: Upload photo
+router.post('/:id/photo', protect, upload.single('profilePhoto'), uploadProfilePhoto);
 
 module.exports = router;
+

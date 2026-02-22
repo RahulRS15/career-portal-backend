@@ -1,6 +1,6 @@
-const User   = require('../models/User');
+const User = require('../models/User');
 const crypto = require('crypto');
-const jwt    = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 const signAccessToken = (id) =>
@@ -14,7 +14,7 @@ const signRefreshToken = (id) =>
   });
 
 const sendTokens = (user, statusCode, res) => {
-  const accessToken  = signAccessToken(user._id);
+  const accessToken = signAccessToken(user._id);
   const refreshToken = signRefreshToken(user._id);
   const userObj = user.toObject();
   delete userObj.password;
@@ -39,7 +39,7 @@ const sendTokens = (user, statusCode, res) => {
 // ─── POST /api/auth/register ─────────────────────────────────────────────────
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone, role, status } = req.body;
+    const { name, email, password, mobile, role, status } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: 'Name, email and password are required' });
@@ -50,8 +50,9 @@ exports.register = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email already registered' });
     }
 
-    const userData = { name, email, password, phone, role: role || 'student' };
+    const userData = { name, email, password, mobile, role: role || 'student' };
     if (role === 'student' && status) userData.status = status;
+
 
     const user = await User.create(userData);
     sendTokens(user, 201, res);
@@ -105,7 +106,7 @@ exports.refreshToken = async (req, res) => {
     }
 
     // Issue new access token (token rotation)
-    const newAccessToken  = signAccessToken(user._id);
+    const newAccessToken = signAccessToken(user._id);
     const newRefreshToken = signRefreshToken(user._id);
 
     res.cookie('refreshToken', newRefreshToken, {
@@ -151,7 +152,7 @@ exports.forgotPassword = async (req, res) => {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    user.resetPasswordToken   = crypto.createHash('sha256').update(token).digest('hex');
+    user.resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
     user.resetPasswordExpires = Date.now() + 3600000;
     await user.save({ validateBeforeSave: false });
 
@@ -186,8 +187,8 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
     }
 
-    user.password             = newPassword;
-    user.resetPasswordToken   = undefined;
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
 

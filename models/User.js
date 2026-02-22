@@ -30,8 +30,8 @@ const userSchema = new mongoose.Schema(
     companyLogo: { type: String, default: "" },
 
     refreshToken: { type: String, default: null },
-    resetToken: { type: String, default: null },
-    resetTokenExpiry: { type: Date, default: null },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
     emailVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
